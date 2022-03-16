@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/grandview/static/css/main.f33afe84.css",
-    "main.js": "/grandview/static/js/main.43f3805e.js",
+    "main.js": "/grandview/static/js/main.0b330242.js",
     "index.html": "/grandview/index.html",
     "main.f33afe84.css.map": "/grandview/static/css/main.f33afe84.css.map",
-    "main.43f3805e.js.map": "/grandview/static/js/main.43f3805e.js.map"
+    "main.0b330242.js.map": "/grandview/static/js/main.0b330242.js.map"
   },
   "entrypoints": [
     "static/css/main.f33afe84.css",
-    "static/js/main.43f3805e.js"
+    "static/js/main.0b330242.js"
   ]
 }
