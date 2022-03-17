@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/grandview/static/css/main.7c4dbf3d.css",
-    "main.js": "/grandview/static/js/main.2da11afe.js",
+    "main.css": "/grandview/static/css/main.6aa31ff5.css",
+    "main.js": "/grandview/static/js/main.2e280365.js",
     "index.html": "/grandview/index.html",
-    "main.7c4dbf3d.css.map": "/grandview/static/css/main.7c4dbf3d.css.map",
-    "main.2da11afe.js.map": "/grandview/static/js/main.2da11afe.js.map"
+    "main.6aa31ff5.css.map": "/grandview/static/css/main.6aa31ff5.css.map",
+    "main.2e280365.js.map": "/grandview/static/js/main.2e280365.js.map"
   },
   "entrypoints": [
-    "static/css/main.7c4dbf3d.css",
-    "static/js/main.2da11afe.js"
+    "static/css/main.6aa31ff5.css",
+    "static/js/main.2e280365.js"
   ]
 }
