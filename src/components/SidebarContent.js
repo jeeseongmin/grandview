@@ -1,8 +1,7 @@
 import Button from "@mui/material/Button";
 import React from "react";
-import { FiSettings } from "react-icons/fi";
 
-const SidebarContent = ({ mode, setMode }) => {
+const SidebarContent = ({ mode, setMode, changeDrawing, movingMarker }) => {
   const close = () => {
     const homeTarget = document.querySelector("#homeBtn");
     const settingTarget = document.querySelector("#settingBtn");
@@ -19,7 +18,9 @@ const SidebarContent = ({ mode, setMode }) => {
 
   const updateMode = () => {};
 
-  const refreshStorage = () => {};
+  const uploadImage = () => {
+    alert("이미지 업로드 기능은 서버 구현된 후에 적용 예정입니다.");
+  };
 
   const changeMode = async (text) => {
     await localStorage.setItem("mode", text);
@@ -58,54 +59,12 @@ const SidebarContent = ({ mode, setMode }) => {
             가정하였습니다.
           </h4>
           <h4 style={{ marginTop: "5px" }}>
-            <b>LocalStorage</b>를 사용하여 데이터를 관리하며, 간단한{" "}
-            <b>marker</b> 사용 및 테스트를 진행할 수 있습니다.
-          </h4>
-          <h4 style={{ marginTop: "5px" }}>
-            또한 우측 하단 버튼을 통해 모드 변경이 가능합니다. <br></br>
-            (USER, ADMIN)
-          </h4>
-
-          <h3>USER mode</h3>
-          <h4 style={{ marginTop: "5px" }}>
-            유저 모드에서는 자리 별 배치와 <b>marker</b> 클릭 이벤트를 통한 정보
-            확인이 가능합니다.
-          </h4>
-
-          <h3>ADMIN mode</h3>
-          <h4 style={{ marginTop: "5px" }}>
-            관리자 모드로 전환 시 좌측 메뉴바에 있는{" "}
-            <FiSettings size={16} style={{ marginBottom: "-2px" }} /> 아이콘이
-            활성화됩니다.
-          </h4>
-          <h4 style={{ marginTop: "5px" }}>
-            관리자는 다음과 같은 기능을 수행할 수 있습니다.
-          </h4>
-          <h4 style={{ marginTop: "20px" }}>
-            <b>1. 인원 추가</b>
-          </h4>
-          <h4 style={{ marginTop: "5px" }}>
-            - 추가 버튼 클릭 후 도면 상 원하는 지점 선택
-            <br></br>- 마커 자동 생성
-            <br></br>- 관련 정보는 수정하기에서 수정
-          </h4>
-          <h4 style={{ marginTop: "10px" }}>
-            <b>2. 마커 위치 변경</b>
-          </h4>
-          <h4 style={{ marginTop: "5px" }}>
-            - 마커 드래그 시 자동으로 해당 마커 위치 변경
-          </h4>
-          <h4 style={{ marginTop: "10px" }}>
-            <b>3. 수정하기</b>
-          </h4>
-          <h4 style={{ marginTop: "5px" }}>
-            - 관리자 권한으로 마커 클릭 시 팝업 창 로드
-            <br></br>- 삭제하기 기능
-            <br></br>- 내용 수정하기 기능
+            선택 가능한 이미지의 종류는 총 4개로, JPG, JPEG, SVG, PNG로 구성되어
+            있습니다. 이미지 업로드 기능은 서버 구현 이후 적용 예정입니다.
           </h4>
         </div>
       </div>
-      <div id='setting' class='sidebar-pane active'>
+      <div id='setting' class='sidebar-pane'>
         <h1 class='sidebar-header'>
           Setting
           <div class='sidebar-close' role='btn' onClick={close}>
@@ -179,36 +138,99 @@ const SidebarContent = ({ mode, setMode }) => {
               </Button>
             </div>
           </div>
-          <h3>이미지 업로드</h3>
+          <h3>마커 움직이기</h3>
           <h4 style={{ marginTop: "5px" }}>도면 이미지를 업로드 합니다.</h4>
           <h4>업로드된 이미지가 적용됩니다.</h4>
-          <Button
-            onClick={refreshStorage}
+          <div class='movingMarkerBtnWrapper'>
+            <Button onClick={movingMarker} variant='outlined' class='emptyBtn'>
+              마커 움직이기
+            </Button>
+            <Button onClick={() => movingMarker("top")} variant='outlined'>
+              top
+            </Button>
+            <Button onClick={movingMarker} variant='outlined' class='emptyBtn'>
+              마커 움직이기
+            </Button>
+            <Button onClick={() => movingMarker("left")} variant='outlined'>
+              left
+            </Button>
+            <Button onClick={() => movingMarker("bottom")} variant='outlined'>
+              bototm{" "}
+            </Button>
+            <Button onClick={() => movingMarker("right")} variant='outlined'>
+              right{" "}
+            </Button>
+          </div>
+          {/* <Button
+            onClick={movingMarker}
             style={{ width: "100%", height: "35px", marginTop: "10px" }}
             variant='outlined'>
-            이미지 업로드
-          </Button>
+            마커 움직이기
+          </Button> */}
           <h3>이미지 선택하기</h3>
           <h4 style={{ marginTop: "5px" }}>도면 이미지를 선택합니다.</h4>
           <h4>선택한 이미지가 적용됩니다.</h4>
           <div class='circleImageWrapper'>
-            <h4>1번</h4>
-            <div class='circleImage img1'>
-              <img class='img' src='/assets/image/img1.jpg' alt='img' />
+            <h4>
+              <b>1번 (JPG)</b>
+            </h4>
+            <div
+              class='circleImage img1'
+              onClick={() => changeDrawing("/grandview/assets/image/img1.jpg")}>
+              <img
+                class='img'
+                src='/grandview/assets/image/img1.jpg'
+                alt='img'
+              />
             </div>
-            <h4>2번</h4>
-            <div class='circleImage img2'>
-              <img class='img' src='/assets/image/img2.jpg' alt='img' />
+            <div class='hr'></div>
+            <h4>
+              <b>2번 (JPEG)</b>
+            </h4>{" "}
+            <div
+              class='circleImage img2'
+              onClick={() =>
+                changeDrawing("/grandview/assets/image/img2.jpeg")
+              }>
+              <img
+                class='img'
+                src='/grandview/assets/image/img2.jpeg'
+                alt='img'
+              />
             </div>
-            <h4>3번</h4>
-            <div class='circleImage img3'>
-              <img class='img' src='/assets/image/img3.svg' alt='img' />
+            <div class='hr'></div>
+            <h4>
+              <b>3번 (SVG)</b>
+            </h4>{" "}
+            <div
+              class='circleImage img3'
+              onClick={() => changeDrawing("/grandview/assets/image/img3.svg")}>
+              <img
+                class='img'
+                src='/grandview/assets/image/img3.svg'
+                alt='img'
+              />
             </div>
-            <h4>4번</h4>
-            <div class='circleImage img4'>
-              <img class='img' src='/assets/image/img4.jpeg' alt='img' />
+            <div class='hr'></div>
+            <h4>
+              <b>4번 (PNG)</b>
+            </h4>{" "}
+            <div
+              class='circleImage img4'
+              onClick={() => changeDrawing("/grandview/assets/image/img4.png")}>
+              <img
+                class='img'
+                src='/grandview/assets/image/img4.png'
+                alt='img'
+              />
             </div>
           </div>
+          <Button
+            onClick={() => changeDrawing("reset")}
+            style={{ width: "100%", height: "35px", marginTop: "10px" }}
+            variant='outlined'>
+            초기 이미지로 리셋
+          </Button>
         </div>
       </div>
     </div>

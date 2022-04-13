@@ -1,7 +1,7 @@
 import React from "react";
 import SidebarContent from "./SidebarContent";
 
-const Sidebar = ({ mode, setMode }) => {
+const Sidebar = ({ mode, setMode, changeDrawing, movingMarker }) => {
   const clickButton = (text) => {
     if (text === "home") {
       const homeTarget = document.querySelector("#homeBtn");
@@ -46,7 +46,7 @@ const Sidebar = ({ mode, setMode }) => {
   };
 
   return (
-    <div class='sidebar-tabs sidebar leaflet-touch '>
+    <div class='sidebar-tabs sidebar leaflet-touch collapsed'>
       <div class='sidebar-tabs'>
         <ul role='tablist'>
           <li class='' id='homeBtn'>
@@ -69,7 +69,7 @@ const Sidebar = ({ mode, setMode }) => {
               </svg>
             </button>
           </li>
-          <li class='active' id='settingBtn'>
+          <li class='' id='settingBtn'>
             <button
               class='sidebar-tab-button'
               role='tab'
@@ -91,7 +91,12 @@ const Sidebar = ({ mode, setMode }) => {
           </li>{" "}
         </ul>
       </div>
-      <SidebarContent mode={mode} setMode={setMode} />
+      <SidebarContent
+        mode={mode}
+        setMode={setMode}
+        changeDrawing={changeDrawing}
+        movingMarker={movingMarker}
+      />
     </div>
   );
 };

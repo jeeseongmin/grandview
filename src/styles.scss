@@ -392,6 +392,7 @@ button {
   height: 10rem;
   background-color: transparent;
   margin-bottom: 1rem;
+  cursor: pointer;
 }
 .circleImage:hover {
   opacity: 0.5;
@@ -401,4 +402,21 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+.hr {
+  width: 100%;
+  border-bottom: 1px solid #e4e4e4;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.movingMarkerBtnWrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.emptyBtn {
+  visibility: hidden;
 }
