@@ -27,7 +27,6 @@ const SidebarContent = ({ mode, setMode, changeDrawing, movingMarker }) => {
     await setMode(text);
     console.log(text);
   };
-
   return (
     <div class='sidebar-content'>
       <div id='home' class='sidebar-pane'>
@@ -145,19 +144,23 @@ const SidebarContent = ({ mode, setMode, changeDrawing, movingMarker }) => {
             <Button onClick={movingMarker} variant='outlined' class='emptyBtn'>
               마커 움직이기
             </Button>
-            <Button onClick={() => movingMarker("top")} variant='outlined'>
+            <Button onMouseDown={() => movingMarker("top")} variant='outlined'>
               top
             </Button>
             <Button onClick={movingMarker} variant='outlined' class='emptyBtn'>
               마커 움직이기
             </Button>
-            <Button onClick={() => movingMarker("left")} variant='outlined'>
+            <Button onMouseDown={() => movingMarker("left")} variant='outlined'>
               left
             </Button>
-            <Button onClick={() => movingMarker("bottom")} variant='outlined'>
+            <Button
+              onMouseDown={() => movingMarker("bottom")}
+              variant='outlined'>
               bototm{" "}
             </Button>
-            <Button onClick={() => movingMarker("right")} variant='outlined'>
+            <Button
+              onMouseDown={() => movingMarker("right")}
+              variant='outlined'>
               right{" "}
             </Button>
           </div>
