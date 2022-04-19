@@ -413,13 +413,25 @@ button {
   margin-bottom: 0.5rem;
 }
 
-.movingMarkerBtnWrapper {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 8px;
+.movingMarkerInputWrapper {
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+
   margin-top: 0.75rem;
+  margin-bottom: 1rem;
+}
+.movingMarkerInputWrapper > div {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
   margin-bottom: 0.75rem;
 }
+.btnWrapper {
+  width: 100%;
+}
+
 .emptyBtn {
   visibility: hidden;
 }

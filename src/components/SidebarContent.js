@@ -1,7 +1,15 @@
 import Button from "@mui/material/Button";
-import React from "react";
+import TextField from "@mui/material/TextField";
+import React, { useState } from "react";
 
 const SidebarContent = ({ mode, setMode, changeDrawing, movingMarker }) => {
+  const [movingInfo, setMovingInfo] = useState({
+    startLongitude: 0,
+    endLongitude: 0,
+    startLatitude: 0,
+    endLatitude: 0,
+    speed: 1,
+  });
   const close = () => {
     const homeTarget = document.querySelector("#homeBtn");
     const settingTarget = document.querySelector("#settingBtn");
@@ -27,6 +35,42 @@ const SidebarContent = ({ mode, setMode, changeDrawing, movingMarker }) => {
     await setMode(text);
     console.log(text);
   };
+
+  const changeInfo = (e, type) => {
+    const cp = { ...movingInfo };
+    cp[type] = e.target.value;
+    setMovingInfo(cp);
+  };
+
+  const checkMove = async () => {
+    if (movingInfo.speed <= 0) {
+      alert("speed는 0보다 커야 합니다.");
+      return;
+    } else {
+      const startPoint = {
+        latitude: movingInfo.startLatitude,
+        longitude: movingInfo.startLongitude,
+      };
+      const endPoint = {
+        latitude: movingInfo.endLatitude,
+        longitude: movingInfo.endLongitude,
+      };
+      await movingMarker(startPoint, endPoint, movingInfo.speed);
+      resetInfo();
+    }
+  };
+
+  const resetInfo = () => {
+    const cp = {
+      startLongitude: 0,
+      endLongitude: 0,
+      startLatitude: 0,
+      endLatitude: 0,
+      speed: 1,
+    };
+    setMovingInfo(cp);
+  };
+
   return (
     <div class='sidebar-content'>
       <div id='home' class='sidebar-pane'>
@@ -82,7 +126,7 @@ const SidebarContent = ({ mode, setMode, changeDrawing, movingMarker }) => {
           </div>
         </h1>
         <div>
-          <h3>인원 추가</h3>
+          {/* <h3>인원 추가</h3>
           <h4 style={{ marginTop: "5px" }}>
             <b>인원 추가하기</b> 버튼을 클릭한 후, 원하는 지점을 클릭하세요.
           </h4>
@@ -136,40 +180,71 @@ const SidebarContent = ({ mode, setMode, changeDrawing, movingMarker }) => {
                 취소하기
               </Button>
             </div>
-          </div>
+          </div> */}
           <h3>마커 움직이기</h3>
-          <h4 style={{ marginTop: "5px" }}>도면 이미지를 업로드 합니다.</h4>
-          <h4>업로드된 이미지가 적용됩니다.</h4>
-          <div class='movingMarkerBtnWrapper'>
-            <Button onClick={movingMarker} variant='outlined' class='emptyBtn'>
-              마커 움직이기
-            </Button>
-            <Button onMouseDown={() => movingMarker("top")} variant='outlined'>
-              top
-            </Button>
-            <Button onClick={movingMarker} variant='outlined' class='emptyBtn'>
-              마커 움직이기
-            </Button>
-            <Button onMouseDown={() => movingMarker("left")} variant='outlined'>
-              left
-            </Button>
+          <h4 style={{ marginTop: "5px" }}>
+            출발 위치와 도착 위치, 속도를 입력합니다.
+          </h4>
+          <h4>마커가 이동합니다.</h4>
+          <h4>입력 시 GeoJson으로 변환된다고 가정.</h4>
+          <div class='movingMarkerInputWrapper'>
+            <div>
+              {/* <div class='inputTitle'>출발 위치(ex: 0, 0) : </div> */}
+              <TextField
+                id='standard-basic'
+                label='출발 위도 (latitude)'
+                variant='standard'
+                type='number'
+                value={movingInfo.startLatitude}
+                onChange={(e) => changeInfo(e, "startLatitude")}
+              />
+              <TextField
+                id='standard-basic'
+                label='출발 경도 (longitude)'
+                variant='standard'
+                type='number'
+                value={movingInfo.startLongitude}
+                onChange={(e) => changeInfo(e, "startLongitude")}
+              />
+            </div>
+            <div>
+              <TextField
+                id='standard-basic'
+                label='도착 위도 (latitude)'
+                variant='standard'
+                type='number'
+                value={movingInfo.endLatitude}
+                onChange={(e) => changeInfo(e, "endLatitude")}
+              />
+              <TextField
+                id='standard-basic'
+                label='도착 경도 (longitude)'
+                variant='standard'
+                type='number'
+                value={movingInfo.endLongitude}
+                onChange={(e) => changeInfo(e, "endLongitude")}
+              />
+            </div>
+            <div>
+              <TextField
+                id='standard-basic'
+                label='속도 (기준 1)'
+                variant='standard'
+                type='number'
+                value={movingInfo.speed}
+                onChange={(e) => changeInfo(e, "speed")}
+              />
+            </div>{" "}
+          </div>
+          <div class='btnWrapper'>
             <Button
-              onMouseDown={() => movingMarker("bottom")}
+              onClick={checkMove}
+              style={{ width: "100%", height: "35px" }}
               variant='outlined'>
-              bototm{" "}
-            </Button>
-            <Button
-              onMouseDown={() => movingMarker("right")}
-              variant='outlined'>
-              right{" "}
+              이동하기
             </Button>
           </div>
-          {/* <Button
-            onClick={movingMarker}
-            style={{ width: "100%", height: "35px", marginTop: "10px" }}
-            variant='outlined'>
-            마커 움직이기
-          </Button> */}
+
           <h3>이미지 선택하기</h3>
           <h4 style={{ marginTop: "5px" }}>도면 이미지를 선택합니다.</h4>
           <h4>선택한 이미지가 적용됩니다.</h4>
