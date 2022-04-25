@@ -5,16 +5,24 @@ import { Map } from "react-leaflet";
 import { v4 as uuidv4 } from "uuid";
 
 const MainScreen = () => {
-  var map, newMarker, markerLocation, image, marker, onLocationfound;
+  var sampleMap,
+    realMap,
+    newMarker,
+    markerLocation,
+    image,
+    marker,
+    _marker,
+    onLocationfound;
   var slideToUntil = performance.now();
-  const mapRef = useRef(null);
+  const sampleMapRef = useRef(null);
+  const realMapRef = useRef(null);
   const [markers, setMarkers] = useState([]);
   const [mode, setMode] = useState("view");
   const [drawing, setDrawing] = useState("https://i.imgur.com/Ion6X7C.jpg");
 
   const changeDrawing = async (url) => {
-    map.removeLayer(marker);
-    map.removeLayer(image);
+    sampleMap.removeLayer(marker);
+    sampleMap.removeLayer(image);
     if (url === "reset") setDrawing("https://i.imgur.com/Ion6X7C.jpg");
     else setDrawing(url);
   };
@@ -26,36 +34,154 @@ const MainScreen = () => {
   useEffect(() => {
     localStorage.setItem("room", 1);
     changeMode("view");
+    var greenIcon = new L.Icon({
+      iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+    var redIcon = new L.Icon({
+      iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+    var orangeIcon = new L.Icon({
+      iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+    var blackIcon = new L.Icon({
+      iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+
     var size = {
       width: window.innerWidth || document.body.clientWidth,
       height: window.innerHeight || document.body.clientHeight,
       offsetHeight: document.body.offsetHeight,
       offsetWidth: document.body.offsetWidth,
     };
-    map = mapRef.current.leafletElement;
+    sampleMap = sampleMapRef.current.leafletElement;
     const bounds = [
-      [(size.height / 2) * -1, (size.width / 2) * -1],
+      [(size.height / 2) * -1, (size.width / 4) * -1],
       [size.height / 2, size.width / 2],
     ];
-    image = L.imageOverlay(drawing, bounds).addTo(map);
-    map.on("click", addMarker);
+    image = L.imageOverlay(drawing, bounds).addTo(sampleMap);
+    sampleMap.on("click", addMarker);
 
-    map.on("locationfound", onLocationfound);
+    sampleMap.on("locationfound", onLocationfound);
 
-    map.fitBounds(image.getBounds());
+    sampleMap.fitBounds(image.getBounds());
+
     var latlngbounds = new L.latLngBounds();
-    const mapWidth = map._container.offsetWidth;
-    const mapHeight = map._container.offsetHeight;
-    marker = L.marker([0, 0]).addTo(map);
-    var marker1 = L.marker(L.latLng(size.height / 2, size.width / 2)).addTo(
-      map
-    );
-    var marker2 = L.marker(
-      L.latLng((size.height / 2) * -1, size.width / 2)
-    ).addTo(map);
-    var marker3 = L.marker(L.latLng(450, 500)).addTo(map);
-    var marker4 = L.marker(L.latLng(-450, 500)).addTo(map);
+    const mapWidth = sampleMap._container.offsetWidth;
+    const mapHeight = sampleMap._container.offsetHeight;
+    marker = L.marker([0, 0], { icon: greenIcon }).addTo(sampleMap);
+    var marker1 = L.marker(L.latLng(size.height / 2, size.width / 2), {
+      icon: redIcon,
+    }).addTo(sampleMap);
+    var marker2 = L.marker(L.latLng(size.height / 2, 0), {
+      icon: orangeIcon,
+    }).addTo(sampleMap);
+    // var marker2 = L.marker(L.latLng((size.height / 2) * -1, size.width / 2)).addTo(sampleMap);
+    // var marker3 = L.marker(L.latLng(450, 500)).addTo(sampleMap);
+    // var marker4 = L.marker(L.latLng(-450, 500)).addTo(sampleMap);
   }, [drawing]);
+
+  useEffect(() => {
+    // realMap = realMapRef.current.leafletElement;
+    var greenIcon = new L.Icon({
+      iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+    var redIcon = new L.Icon({
+      iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+    var orangeIcon = new L.Icon({
+      iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+    var blackIcon = new L.Icon({
+      iconUrl:
+        "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-black.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png",
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowSize: [41, 41],
+    });
+    realMap = L.map("realMap", {
+      center: [(37.488356 + 37.473346) / 2, (127.192445 + 127.19685) / 2],
+      zoom: 15,
+    });
+    realMap.on("click", function (e) {
+      console.log("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
+    });
+
+    // realMap = L.map("realMap").setView([50.84673, 4.35247], 16);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(realMap);
+    // realMap.fitBounds(image.getBounds());
+    // 첫번째, 두번째 점
+    // var _markerCenter = L.marker(
+    //   [(37.488356 + 37.473346) / 2, (127.192445 + 127.19685) / 2],
+    //   { icon: blackIcon }
+    // ).addTo(realMap);
+    var _marker2 = L.marker([37.488356, 127.192445], { icon: greenIcon }).addTo(
+      realMap
+    );
+    var _marker3 = L.marker([37.473346, 127.19685], { icon: redIcon }).addTo(
+      realMap
+    );
+    var _marker3 = L.marker([37.48565384720195, 127.20249854002395], {
+      icon: orangeIcon,
+    }).addTo(realMap);
+
+    // var _marker4 = L.marker([37.473346, 127.19685]).addTo(realMap);
+    // var _marker5 = L.marker([37.473346, 127.19685]).addTo(realMap);
+  }, []);
 
   /**
    * Marker의 위치를 업데이트하는 함수
@@ -172,7 +298,7 @@ const MainScreen = () => {
   const addMarker = useCallback(async (e) => {
     if (localStorage.getItem("mode") === "view") return;
     var marker = await new L.marker(e.latlng)
-      .addTo(map)
+      .addTo(sampleMap)
       .bindPopup(
         "<div name='removeClickM' class='popupWrapper' id=" +
           e.latlng.lat +
@@ -216,15 +342,27 @@ const MainScreen = () => {
           />
         </div>
         <div class='mapWrapper'>
-          <Map
-            ref={mapRef}
-            // zoom={-1}
-            maxZoom={5}
-            crs={CRS.Simple}
-            maxBoundsViscosity={1.0}
-            // boundsOptions={{ padding: [50, 50] }}
-            style={{ height: "100vh" }}
-          />
+          <div class='mapLeft'>
+            <Map
+              ref={sampleMapRef}
+              zoom={1}
+              // maxZoom={5}
+              crs={CRS.Simple}
+              maxBoundsViscosity={1.0}
+              // boundsOptions={{ padding: [50, 50] }}
+              style={{ height: "100vh" }}
+            />
+          </div>
+          <div class='mapRight'>
+            {/* <Map
+              ref={realMapRef}
+              // id={realMap}
+              crs={CRS.Simple}
+              boundsOptions={{ padding: [50, 50] }}
+              style={{ height: "100vh" }}
+            /> */}
+            <div id='realMap' style={{ width: "100%", height: "100vh" }}></div>
+          </div>
         </div>
       </div>
     </>
