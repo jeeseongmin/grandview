@@ -2,8 +2,8 @@ import Sidebar from "components/Sidebar";
 import L, { CRS } from "leaflet";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Map } from "react-leaflet";
+import { CommonUtil } from "utils/calc";
 import { v4 as uuidv4 } from "uuid";
-
 const MainScreen = () => {
   var sampleMap,
     realMap,
@@ -108,6 +108,69 @@ const MainScreen = () => {
     // var marker4 = L.marker(L.latLng(-450, 500)).addTo(sampleMap);
   }, [drawing]);
 
+  const getTheta = () => {
+    const data = new Array();
+    // orange
+    data.push(L.latLng(37.48565384720195, 127.20249854002395));
+    // red
+    data.push(L.latLng(37.482029980369944, 127.21579990202908));
+    // green
+    data.push(L.latLng(37.480579692661436, 127.20040033364428));
+    const theta = CommonUtil.calTheta(data);
+
+    console.log(theta);
+
+    // 두 번째 입력한 위치 회전변환
+    let tempCoordi = CommonUtil.calcCoordinatesAfterRotation(
+      CommonUtil.convertUnitToLat(data[0].lng),
+      data[0].lat,
+      CommonUtil.convertUnitToLat(data[1].lng),
+      data[1].lat,
+      theta,
+      false
+    );
+    tempCoordi.x = CommonUtil.convertUnitToLon(tempCoordi.x);
+
+    data[1].lon_rotated = tempCoordi.x;
+    data[1].lat_rotated = tempCoordi.y;
+
+    // 세 번째 입력한 위치 회전변환
+    let tempCoordi2 = CommonUtil.calcCoordinatesAfterRotation(
+      CommonUtil.convertUnitToLat(data[0].lng),
+      data[0].lat,
+      CommonUtil.convertUnitToLat(data[2].lng),
+      data[2].lat,
+      theta,
+      false
+    );
+    tempCoordi2.x = CommonUtil.convertUnitToLon(tempCoordi2.x);
+    data[2].lon_rotated = tempCoordi2.x;
+    data[2].lat_rotated = tempCoordi2.y;
+    console.log("중간 점검 : ", data);
+
+    // 위도, 경도 방정식 만들기
+    let lonQuation = CommonUtil.makeLinearEquation(
+      data[0].lng,
+      data[0].x,
+      data[1].lon_rotated,
+      data[1].x
+    );
+    let latQuation = CommonUtil.makeLinearEquation(
+      data[0].lat,
+      data[0].y,
+      data[2].lat_rotated,
+      data[2].y
+    );
+    console.log(lonQuation, latQuation);
+
+    // const mytheta = CommonUtil.myTheta(
+    //   L.latLng(37.48565384720195, 127.20249854002395),
+    //   L.latLng(37.473346, 127.19685),
+    //   L.latLng(37.488356, 127.192445)
+    // );
+    // console.log(mytheta);
+  };
+
   useEffect(() => {
     // realMap = realMapRef.current.leafletElement;
     var greenIcon = new L.Icon({
@@ -155,7 +218,8 @@ const MainScreen = () => {
       zoom: 15,
     });
     realMap.on("click", function (e) {
-      console.log("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
+      // console.log("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
+      getTheta();
     });
 
     // realMap = L.map("realMap").setView([50.84673, 4.35247], 16);
@@ -169,15 +233,24 @@ const MainScreen = () => {
     //   [(37.488356 + 37.473346) / 2, (127.192445 + 127.19685) / 2],
     //   { icon: blackIcon }
     // ).addTo(realMap);
-    var _marker2 = L.marker([37.488356, 127.192445], { icon: greenIcon }).addTo(
-      realMap
-    );
-    var _marker3 = L.marker([37.473346, 127.19685], { icon: redIcon }).addTo(
-      realMap
-    );
-    var _marker3 = L.marker([37.48565384720195, 127.20249854002395], {
+    var _marker2 = L.marker(L.latLng(37.480579692661436, 127.20040033364428), {
+      icon: greenIcon,
+    }).addTo(realMap);
+    var _marker3 = L.marker(L.latLng(37.482029980369944, 127.21579990202908), {
+      icon: redIcon,
+    }).addTo(realMap);
+    var _marker4 = L.marker(L.latLng(37.48565384720195, 127.20249854002395), {
       icon: orangeIcon,
     }).addTo(realMap);
+    var _marker5 = L.marker(
+      L.latLng(37.47644989299934, 127.21397687840275)
+    ).addTo(realMap);
+    var _marker6 = L.marker(
+      L.latLng(37.481810070211765, 127.19913296330643)
+    ).addTo(realMap);
+    // var _marker6 = L.marker(
+    //   L.latLng(37.48565384720195, 127.20249854002392)
+    // ).addTo(realMap);
 
     // var _marker4 = L.marker([37.473346, 127.19685]).addTo(realMap);
     // var _marker5 = L.marker([37.473346, 127.19685]).addTo(realMap);
