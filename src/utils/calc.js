@@ -1,4 +1,4 @@
-const targetLon = 37.4; //인천의 위도
+const targetLon = 37.48637957308459; //인천의 위도
 const radiusOfEarth = 6371.009; //지구 반지름(km)
 const circumferenceOfEarth = 2 * Math.PI * radiusOfEarth; //지구 둘레
 const distancePerLat = circumferenceOfEarth / 360; //경도당 거리(km)
@@ -6,32 +6,32 @@ const distancePerLon =
   (Math.cos((targetLon * Math.PI) / 180) * circumferenceOfEarth) / 360; //위도당 거리(km)
 
 export const CommonUtil = {
-  convertUnitToLon: (LonValue) => {
+  convertUnitToLat: (LonValue) => {
     return (LonValue * distancePerLon) / distancePerLat;
   },
-  convertUnitToLat: (LatValue) => {
+  convertUnitToLon: (LatValue) => {
     return (LatValue * distancePerLat) / distancePerLon;
   },
-  calTheta: (data) => {
+  calTheta: (origin_x, origin_y, x, y, is_rad) => {
     // console.log(data);
-    const _calcTheta = (origin_x, origin_y, x, y, is_rad) => {
-      const a = y - origin_y;
-      const b = x - origin_x;
-      const theta = Math.atan(a / b);
+    const a = y - origin_y;
+    const b = x - origin_x;
+    const theta = Math.atan(a / b);
 
-      if (is_rad) {
-        return theta;
-      } else {
-        return theta * (180 / Math.PI);
-      }
-    };
-    let converted1 = (data[0].lng * distancePerLat) / distancePerLon;
-    let converted2 = (data[1].lng * distancePerLat) / distancePerLon;
+    if (is_rad) {
+      return theta;
+    } else {
+      return theta * (180 / Math.PI);
+    }
+    // const _calcTheta = (origin_x, origin_y, x, y, is_rad) => {
+    // };
+    // let converted1 = (data[0].lng * distancePerLat) / distancePerLon;
+    // let converted2 = (data[1].lng * distancePerLat) / distancePerLon;
 
-    let theta =
-      _calcTheta(converted1, data[0].lat, converted2, data[1].lat, false) * -1;
+    // let theta =
+    //   _calcTheta(converted1, data[0].lat, converted2, data[1].lat, false) * -1;
 
-    return theta;
+    // return theta;
   },
 
   myTheta: (main, left, top) => {
@@ -71,15 +71,6 @@ export const CommonUtil = {
     return { x: xx, y: yy };
   },
   makeLinearEquation: (origin_x, origin_y, to_x, to_y) => {
-    const x_variation = to_x - origin_x;
-    const y_variation = to_y - origin_y;
-    const slope = y_variation / x_variation;
-
-    const intercept = origin_y - slope * origin_x;
-
-    return { slope: slope, intercept: intercept };
-  },
-  akeLinearEquation: (origin_x, origin_y, to_x, to_y) => {
     const x_variation = to_x - origin_x;
     const y_variation = to_y - origin_y;
     const slope = y_variation / x_variation;
