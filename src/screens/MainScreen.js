@@ -2,7 +2,7 @@ import Sidebar from "components/Sidebar";
 import L, { CRS } from "leaflet";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Map } from "react-leaflet";
-import { CommonUtil } from "utils/calc";
+import { CommonUtil } from "utils/util";
 import { v4 as uuidv4 } from "uuid";
 const MainScreen = () => {
   var sampleMap,
@@ -12,12 +12,16 @@ const MainScreen = () => {
     image,
     marker,
     _marker,
-    onLocationfound,
-    orangeMarker,
-    redMarker,
-    greenMarker,
-    blackMarker,
-    _blackMarker;
+    sampleOnLocationFound,
+    sampleOrangeMarker,
+    sampleRedMarker,
+    sampleGreenMarker,
+    sampleBlackMarker,
+    realOnLocationFound,
+    realRedMarker,
+    realGreenMarker,
+    realOrangeMarker,
+    realBlackMarker;
   var greenIcon = new L.Icon({
     iconUrl:
       "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png",
@@ -73,55 +77,64 @@ const MainScreen = () => {
     if (url === "reset") setDrawing("https://i.imgur.com/Ion6X7C.jpg");
     else setDrawing(url);
   };
+
   const changeMode = (text) => {
     localStorage.setItem("mode", text);
     setMode(text);
   };
 
+  /**
+   * 도면 화면에 대한 구현
+   * 1. Map 생성 후 Map에 함수 매칭
+   * 2. Marker 생성
+   */
   useEffect(() => {
-    localStorage.setItem("room", 1);
-    changeMode("view");
-
-    var size = {
-      width: window.innerWidth || document.body.clientWidth,
-      height: window.innerHeight || document.body.clientHeight,
-      offsetHeight: document.body.offsetHeight,
-      offsetWidth: document.body.offsetWidth,
-    };
     sampleMap = sampleMapRef.current.leafletElement;
+
+    // 비율에 따라 다르게 설정
+    // 이후에 greenMarker position 재설정 필요
+    // const bounds = [
+    //   [-378, -630.5],
+    //   [378, 630.5],
+    // ];
     const bounds = [
-      [(size.height / 2) * -1, (size.width / 4) * -1],
-      [size.height / 2, size.width / 2],
+      [-378 * 2, -630.5 * 2],
+      [378 * 2, 630.5 * 2],
     ];
     image = L.imageOverlay(drawing, bounds).addTo(sampleMap);
     sampleMap.on("click", addMarker);
 
-    sampleMap.on("locationfound", onLocationfound);
+    sampleMap.on("locationfound", sampleOnLocationFound);
 
     sampleMap.fitBounds(image.getBounds());
 
-    var latlngbounds = new L.latLngBounds();
-    const mapWidth = sampleMap._container.offsetWidth;
-    const mapHeight = sampleMap._container.offsetHeight;
-    greenMarker = L.marker([165.36328125, 259.6568341251992], {
+    sampleGreenMarker = L.marker([162.90104153938591, 164.87130123190582], {
       icon: greenIcon,
     }).addTo(sampleMap);
-    redMarker = L.marker(L.latLng(size.height / 2, size.width / 2), {
+
+    sampleRedMarker = L.marker(L.latLng(bounds[1][0], bounds[1][1]), {
       icon: redIcon,
     }).addTo(sampleMap);
-    orangeMarker = L.marker(L.latLng(size.height / 2, 0), {
+
+    sampleOrangeMarker = L.marker(L.latLng(bounds[1][0], 0), {
       icon: orangeIcon,
     }).addTo(sampleMap);
 
     sampleMap.on("click", function (e) {
       console.log("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
     });
-
-    // var marker2 = L.marker(L.latLng((size.height / 2) * -1, size.width / 2)).addTo(sampleMap);
-    // var marker3 = L.marker(L.latLng(450, 500)).addTo(sampleMap);
-    // var marker4 = L.marker(L.latLng(-450, 500)).addTo(sampleMap);
   }, [drawing]);
 
+  /**
+   * 원하는 GPS 좌표를 실제 화면 좌표로 변환하는 방법.
+   * @param {*} data
+   * @param {*} theta
+   * @param {*} lat
+   * @param {*} lon
+   * @param {*} lonQuation
+   * @param {*} latQuation
+   * @returns
+   */
   function calcScreenCoordinates(
     data,
     theta,
@@ -130,7 +143,6 @@ const MainScreen = () => {
     lonQuation,
     latQuation
   ) {
-    // console.log(data, theta, lat, lon, lonQuation, latQuation);
     let tempCoordi = CommonUtil.calcCoordinatesAfterRotation(
       CommonUtil.convertUnitToLat(data[0].lng),
       data[0].lat,
@@ -140,16 +152,13 @@ const MainScreen = () => {
       true
     );
     tempCoordi.x = CommonUtil.convertUnitToLon(tempCoordi.x);
-    console.log(tempCoordi.x, tempCoordi.y);
-    let x = lonQuation.slope * tempCoordi.x + lonQuation.intercept;
     let y = latQuation.slope * tempCoordi.y + latQuation.intercept;
-
-    if (blackMarker) sampleMap.removeLayer(blackMarker);
+    let x = lonQuation.slope * tempCoordi.x + lonQuation.intercept;
+    if (sampleBlackMarker) sampleMap.removeLayer(sampleBlackMarker);
     // 처음에 x, y 그대로 들어가서 이상했는데 조금 수정하니까 잘 됨.
-    blackMarker = L.marker(L.latLng(y, x), {
+    sampleBlackMarker = L.marker(L.latLng(y, x), {
       icon: blackIcon,
     }).addTo(sampleMap);
-
     return { x: x, y: y };
   }
 
@@ -162,13 +171,12 @@ const MainScreen = () => {
     // green
     data.push(L.latLng(37.48168344105817, 127.20274269022445));
 
-    data[0].x = orangeMarker._latlng.lat;
-    data[0].y = orangeMarker._latlng.lng;
-    data[1].x = redMarker._latlng.lat;
-    data[1].y = redMarker._latlng.lng;
-    data[2].x = greenMarker._latlng.lat;
-    data[2].y = greenMarker._latlng.lng;
-    console.log("data", data);
+    data[0].x = sampleOrangeMarker._latlng.lat;
+    data[0].y = sampleOrangeMarker._latlng.lng;
+    data[1].x = sampleRedMarker._latlng.lat;
+    data[1].y = sampleRedMarker._latlng.lng;
+    data[2].x = sampleGreenMarker._latlng.lat;
+    data[2].y = sampleGreenMarker._latlng.lng;
     const theta =
       CommonUtil.calTheta(
         CommonUtil.convertUnitToLat(data[0].lng),
@@ -217,18 +225,14 @@ const MainScreen = () => {
       data[2].lat_rotated,
       data[2].x
     );
-    console.log("slope, intercept", lonQuation, latQuation);
-    // let lat =
-    console.log(
-      "newX, newY : ",
-      calcScreenCoordinates(
-        data,
-        theta,
-        target.lat,
-        target.lng,
-        lonQuation,
-        latQuation
-      )
+
+    return calcScreenCoordinates(
+      data,
+      theta,
+      target.lat,
+      target.lng,
+      lonQuation,
+      latQuation
     );
   };
 
@@ -282,160 +286,204 @@ const MainScreen = () => {
       center: [37.484220390901115, 127.20952549438583],
       zoom: 15,
     });
+    realMap.on("locationfound", realOnLocationFound);
+
     realMap.on("click", function (e) {
-      // console.log("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
+      console.log("Lat, Lon : " + e.latlng.lat + ", " + e.latlng.lng);
       // setTarget(L.latLng(e.latlng));
-      if (_blackMarker) realMap.removeLayer(_blackMarker);
-      _blackMarker = L.marker(L.latLng(e.latlng), {
+      if (realBlackMarker) realMap.removeLayer(realBlackMarker);
+      realBlackMarker = L.marker(L.latLng(e.latlng), {
         icon: blackIcon,
       }).addTo(realMap);
       getTheta(e.latlng);
     });
 
+    // 실제 지도 tileLayer
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(realMap);
 
-    var _orangeMarker = L.marker(
+    realOrangeMarker = L.marker(
       L.latLng(37.48565384720195, 127.20249854002395),
       {
         icon: orangeIcon,
       }
     ).addTo(realMap);
-    var _greenMarker = L.marker(
+    realGreenMarker = L.marker(
       L.latLng(37.48168344105817, 127.20274269022445),
       {
         icon: greenIcon,
       }
     ).addTo(realMap);
-    var _redMarker = L.marker(
-      L.latLng(37.482029980369944, 127.21579990202908),
-      {
-        icon: redIcon,
-      }
-    ).addTo(realMap);
+    realRedMarker = L.marker(L.latLng(37.482029980369944, 127.21579990202908), {
+      icon: redIcon,
+    }).addTo(realMap);
 
-    var _marker5 = L.marker(
-      L.latLng(37.48565384720195, 127.21656195758096)
-    ).addTo(realMap);
-    var _marker6 = L.marker(
-      L.latLng(37.48196149849642, 127.20435407528535)
-    ).addTo(realMap);
+    // var _marker5 = L.marker(
+    //   L.latLng(37.48565384720195, 127.21656195758096)
+    // ).addTo(realMap);
+    // var _marker6 = L.marker(
+    //   L.latLng(37.48196149849642, 127.20435407528535)
+    // ).addTo(realMap);
   }, []);
 
   /**
    * Marker의 위치를 업데이트하는 함수
    */
-  onLocationfound = async function (e) {
-    await marker.setLatLng(e.latlng);
+  sampleOnLocationFound = async function (e) {
+    await sampleBlackMarker.setLatLng(e.latlng);
+  };
+  /**
+   * Marker의 위치를 업데이트하는 함수
+   */
+  realOnLocationFound = async function (e) {
+    await realBlackMarker.setLatLng(e.latlng);
   };
 
   /**
-   * 마커를 움직이는 함수
-   *
-   * startPoint와 endPoint의 GeoJson을 입력받으면 그곳에서부터 출발하게된다.
-   * params()
+   * Moving Marker Test
+   * @param {*} startPoint
+   * @param {*} endPoint
+   * @param {*} speed
    */
+  const moveAtoA = async (_startPoint, _endPoint, speed) => {
+    console.log("moveAtoA : ", _startPoint, _endPoint);
+    console.log(
+      "trans : ",
+      getTheta({ lat: _startPoint[0], lng: _startPoint[1] }),
+      getTheta({ lat: _endPoint[0], lng: _endPoint[1] })
+    );
 
-  /**
-   * 마커를 움직이는 함수
-   * @param {*} startJson
-   * @param {*} endJson
-   */
-  const movingMarker = async (startPoint, endPoint, speed) => {
-    // 아래와 같이 geoJson읇 받았다고 가정.
-    /**
-     * GeoJson에서는 coordinates의 첫 번째 요소가 latitude, 두 번째 요소가 longitude이다.
-     */
-    const geoJson_start = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "Point",
-            coordinates: [startPoint.longitude * 1, startPoint.latitude * 1],
-          },
-        },
-      ],
-    };
-    const geoJson_end = {
-      type: "FeatureCollection",
-      features: [
-        {
-          type: "Feature",
-          properties: {},
-          geometry: {
-            type: "Point",
-            coordinates: [endPoint.longitude * 1, endPoint.latitude * 1],
-          },
-        },
-      ],
-    };
+    let startPoint = getTheta({ lat: _startPoint[0], lng: _startPoint[1] });
+    let endPoint = getTheta({ lat: _endPoint[0], lng: _endPoint[1] });
 
-    const startP = {
-      latitude: Number(geoJson_start.features[0].geometry.coordinates[1]),
-      longitude: Number(geoJson_start.features[0].geometry.coordinates[0]),
-    };
-    const endP = {
-      latitude: Number(geoJson_end.features[0].geometry.coordinates[1]),
-      longitude: Number(geoJson_end.features[0].geometry.coordinates[0]),
-    };
-
-    /**
-     * start point로 마커 세팅
-     */
-    await onLocationfound({
-      latlng: L.latLng(startP.latitude, startP.longitude),
+    await sampleOnLocationFound({
+      latlng: L.latLng(startPoint[0], startPoint[1]),
     });
 
     console.log("move start");
-    var curx = Number(startP.latitude);
-
+    var curx = Number(startPoint[0]);
+    var duration = 2000;
+    var _slideToDuration = duration;
+    var _slideToUntil = performance.now() + duration;
     const _slideTo = async () => {
-      if (startP.latitude < endP.latitude) {
-        if (curx >= endP.latitude) {
-          console.log("move end");
-          return;
-        }
-      } else {
-        if (curx <= endP.latitude) {
-          console.log("move end");
-          return;
-        }
+      var remaining = _slideToUntil - performance.now();
+
+      if (remaining < 0) {
+        return;
       }
-      curx += speed * 1 * (startP.latitude < endP.latitude ? 1 : -1);
-      // console.log(startP, endP);
-      /**
-       * 직선의 방정식에 의해 구한 식
-       *
-       * y = (y2-y1) / (x2-x1) * (x - x1) + y1;
-       *
-       * 0번째 인덱스는 latitude(위도), 1번째 인덱스는 longitude(경도))
-       *
-       * 두 점이 주어졌을 때에 직선의 방정식이 나오게 되는데, 이때 이 직선의 방정식을 따라 움직여야하므로 위도가 달라짐에 따라 직선 범위 내에 해당하는 경도가 나타난다.
-       */
-      const curPoint = [
-        curx,
-        ((endP.longitude - startP.longitude) /
-          (endP.latitude - startP.latitude)) *
-          (curx - startP.longitude) +
-          startP.longitude,
-      ];
-      // console.log("curPoint : ", curPoint, curx);
-      await onLocationfound({
-        latlng: L.latLng(curPoint[0], curPoint[1]),
+      var startP = sampleMap.latLngToContainerPoint({
+        lat: startPoint[0],
+        lng: startPoint[1],
+      });
+      var endP = sampleMap.latLngToContainerPoint({
+        lat: endPoint[0],
+        lng: endPoint[1],
+      });
+      var percentDone = (_slideToDuration - remaining) / _slideToDuration;
+
+      var currPoint = endP
+        .multiplyBy(percentDone)
+        .add(startP.multiplyBy(1 - percentDone));
+      var currLatLng = sampleMap.containerPointToLatLng(currPoint);
+      await sampleOnLocationFound({
+        latlng: currLatLng,
       });
 
       L.Util.requestAnimFrame(_slideTo, this);
     };
 
-    _slideTo();
-    // return this;
+    await _slideTo().then(async () => {
+      console.log("haha", getTheta({ lat: _endPoint[0], lng: _endPoint[1] }));
+      await sampleOnLocationFound({
+        latlng: L.latLng(endPoint[0], endPoint[1]),
+      });
+    });
+  };
+  /**
+   * Moving Marker Test
+   * @param {*} startPoint
+   * @param {*} endPoint
+   * @param {*} speed
+   */
+  const moveLine = async (geoLineData) => {
+    const geoList = geoLineData.features[0].geometry.coordinates;
+
+    // console.log("시작 : ", geoList);
+    // const promises = geoList.map(async (data, index) => {
+    //   if (index * 1 !== geoList.length - 1)
+    //     return await moveAtoA(geoList[index], geoList[index + 1], 1).then(
+    //       () => data
+    //     );
+    // });
+
+    // const results = await Promise.all(promises);
+    // results.forEach();
+
+    const delay = () => console.log("haha");
+
+    const result = async (list) => {
+      for (const [index, value] of list.entries()) {
+        if (index !== geoList.length - 1)
+          await moveAtoA(geoList[index], geoList[index + 1], 1).then();
+      }
+    };
+
+    var cnt = 0;
+    setInterval(() => {
+      console.log("start!");
+      moveAtoA(geoList[cnt], geoList[cnt + 1], 1);
+      cnt++;
+      if (cnt === geoList.length) return;
+    }, 2000);
+
+    // result(geoList);
+
+    console.log("끝");
+
+    // 시나리오
   };
 
+  /**
+   * 마커 이동 함수 예시
+   *
+   * orange -> center -> red -> green -> center -> orange
+   */
+
+  const onStartMove = async () => {
+    const geoData = {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: [
+              // orange
+              [realOrangeMarker._latlng.lat, realOrangeMarker._latlng.lng],
+              // center
+              [37.48333816841429, 127.20819274185676],
+              // red
+              [realRedMarker._latlng.lat, realRedMarker._latlng.lng],
+              // green
+              [realGreenMarker._latlng.lat, realGreenMarker._latlng.lng],
+              // center
+              // [37.48333816841429, 127.20819274185676],
+              // orange
+              // [realOrangeMarker._latlng.lat, realOrangeMarker._latlng.lng],
+            ],
+          },
+        },
+      ],
+    };
+    await moveLine(geoData);
+  };
+
+  /**
+   * * 마커 추가 함수
+   */
   const addMarker = useCallback(async (e) => {
     if (localStorage.getItem("mode") === "view") return;
     var marker = await new L.marker(e.latlng)
@@ -479,7 +527,7 @@ const MainScreen = () => {
             mode={mode}
             setMode={setMode}
             changeDrawing={changeDrawing}
-            movingMarker={movingMarker}
+            movingMarker={moveAtoA}
           />
         </div>
         <div class='mapWrapper'>
@@ -489,22 +537,14 @@ const MainScreen = () => {
               zoom={1}
               // maxZoom={5}
               crs={CRS.Simple}
-              maxBoundsViscosity={1.0}
-              // boundsOptions={{ padding: [50, 50] }}
+              center={[520.97265625, 392.7849249198582]}
               style={{ height: "100vh" }}
             />
           </div>
-          <div>
-            <button>Click</button>
-          </div>
+          {/* <div>
+            <button onClick={onStartMove}>start</button>
+          </div> */}
           <div class='mapRight'>
-            {/* <Map
-              ref={realMapRef}
-              // id={realMap}
-              crs={CRS.Simple}
-              boundsOptions={{ padding: [50, 50] }}
-              style={{ height: "100vh" }}
-            /> */}
             <div id='realMap' style={{ width: "100%", height: "100vh" }}></div>
           </div>
         </div>
